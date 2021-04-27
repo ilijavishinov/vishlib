@@ -8,5 +8,6 @@ class SequentialNeuralNetwork():
         
         
     def add_layer(self):
+        pass
     
     
