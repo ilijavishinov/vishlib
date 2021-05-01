@@ -1,11 +1,12 @@
 import numpy as np
 from typing import Union
+import vishlib_abstract_classes
 
 
-class LinearRegression:
+class LinearRegression():
     
     def __init__(self,
-                 gradient_descent_method: str = 'analytical',
+                 method: str = 'analytical',
                  warm_start: bool = False,
                  include_bias: bool = False,
                  max_iter: int = 100,
@@ -18,7 +19,8 @@ class LinearRegression:
         self.batch_size = batch_size
         self.include_bias = include_bias
         self.warm_start = warm_start
-        
+        self.method = method
+
         self.weights = None
         self.bias = None
         self.learning_rate = learning_rate
@@ -26,6 +28,44 @@ class LinearRegression:
     # -----------------------------------------------------------------
     
     def fit(self, X_train: np.ndarray, y_train: np.ndarray):
+        
+        if self.method == 'gd':
+            self.fit_gd(X_train, y_train)
+        if self.method == 'analytical':
+            self.fit_analytical(X_train, y_train)
+            
+    # ------------------------------------
+    
+    def fit_analytical(self, X_train: np.ndarray, y_train: np.ndarray):
+    
+        num_instances = X_train.shape[0]
+        if self.include_bias:
+            X_train = np.concatenate(X_train, np.ones(num_instances).reshape((num_instances, 1)), axis = 1)
+
+        weights =\
+            np.dot(
+                np.linalg.inv(
+                    np.matmul(
+                        np.transpose(X_train),
+                        X_train
+                    )
+                ),
+                np.dot(
+                    np.transpose(X_train),
+                    y_train
+                )
+            )
+
+        if self.include_bias:
+            self.bias = weights[-1]
+            self.weights = weights[:-1]
+        else:
+            self.weights = weights
+            self.bias = 0
+
+    # ------------------------------------
+    
+    def fit_gd(self, X_train: np.ndarray, y_train: np.ndarray):
         
         # initialize weights
         weights = np.zeros(X_train.shape[1])
