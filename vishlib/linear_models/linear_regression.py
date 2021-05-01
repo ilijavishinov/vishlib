@@ -1,39 +1,87 @@
 import numpy as np
+from typing import Union
+
 
 class LinearRegression:
     
-    def __init__(self, max_iter):
+    def __init__(self,
+                 gradient_descent_method: str = 'analytical',
+                 warm_start: bool = False,
+                 include_bias: bool = False,
+                 max_iter: int = 100,
+                 batch_size: Union[int, float] = None,
+                 learning_rate: float = 1e-2
+                 ):
+        
         # constructor args
         self.max_iter = max_iter
-
+        self.batch_size = batch_size
+        self.include_bias = include_bias
+        self.warm_start = warm_start
+        
+        self.weights = None
+        self.bias = None
+        self.learning_rate = learning_rate
+        
     # -----------------------------------------------------------------
     
     def fit(self, X_train: np.ndarray, y_train: np.ndarray):
+        
         # initialize weights
         weights = np.zeros(X_train.shape[1])
+        bias = 0
         num_instances = X_train.shape[0]
-        learning_rate = 0.05
+        learning_rate = self.learning_rate
+
+        # calculate batch splitting
+        if self.batch_size is None:
+            num_batches = 1
+        else:
+            num_batches = num_instances // self.batch_size
         
         # perform gradient descent
         for iter_pos in range(self.max_iter):
             
-            # make predictions and calculate loss on train set
-            y_pred = np.multiply(X_train, weights).sum(axis = 1)
-            loss = np.sum((y_train - y_pred) ** 2) / (2 * num_instances)
-            
-            # update weights
-            updatad_weights = np.array([np.nan] * weights.size)
-            for weight_idx in range(weights.size):
+            for X_train_batch, y_train_batch in zip(np.array_split(X_train, num_batches, axis = 0),
+                                                    np.array_split(y_train, num_batches, axis = 0)):
                 
-                # calculate update component (partial derivative mul. by learning rate)
-                partial_derivative = 0
-                for row_i, y_i, y_pred_i in zip(X_train, y_train, y_pred):
-                    partial_derivative += (y_pred_i - y_i) * row_i[weight_idx]
-                partial_derivative /= num_instances
-                update_component = partial_derivative * learning_rate
+                # make predictions and calculate loss on train set
+                y_pred = np.multiply(X_train_batch, weights).sum(axis = 1) + bias
+                loss = np.sum((y_train_batch - y_pred) ** 2) / (2 * num_instances)
                 
-                updatad_weights[weight_idx] = weights[weight_idx] - update_component
-            weights = updatad_weights
+                # update weights
+                updatad_weights = np.array([np.nan] * weights.size)
+                for weight_idx in range(weights.size):
+                    # calculate update component (partial derivative mul. by learning rate)
+                    partial_derivative = 0
+                    for row_i, y_i, y_pred_i in zip(X_train_batch, y_train_batch, y_pred):
+                        partial_derivative += (y_pred_i - y_i) * row_i[weight_idx]
+                    partial_derivative /= num_instances
+                    update_component = partial_derivative * learning_rate
+                    updatad_weights[weight_idx] = weights[weight_idx] - update_component
+                weights = updatad_weights
+                
+                # update bias if included
+                if self.include_bias:
+                    partial_derivative = 0
+                    for y_i, y_pred_i in zip(y_train_batch, y_pred):
+                        partial_derivative += (y_pred_i - y_i)
+                    partial_derivative /= num_instances
+                    update_component = partial_derivative * learning_rate
+                    bias -= update_component
+                    
+        self.weights = weights
+        self.bias = bias
+
+    # ---------------------------------------------------------------------------
+        
+    def predict(self, X_test: np.ndarray, y_test: np.ndarray):
+        return np.multiply(X_test, self.weights).sum(axis = 1) + self.bias
+    
+    # ---------------------------------------------------------------------------
+    
+    
+                
                 
             
                 
