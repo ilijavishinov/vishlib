@@ -1,9 +1,8 @@
 import numpy as np
 from typing import Union
-import vishlib_abstract_classes
+from vishlib_abstract_classes import Estimator
 
-
-class LinearRegression():
+class LinearRegression(Estimator):
     
     def __init__(self,
                  method: str = 'analytical',
