@@ -24,12 +24,10 @@ class LogisticRegression(Estimator):
         self.bias = None
         self.learning_rate = learning_rate
         
-    # ----------------------------------------------------------------
     
     def sigmoid(self, input):
         return 1 / (1 + math.e ** (-input))
     
-    # -----------------------------------------------------------------
     
     # def fit(self, X_train: np.ndarray, y_train: np.ndarray):
     #
@@ -54,17 +52,14 @@ class LogisticRegression(Estimator):
                 
                 
         # TO BE CONTINUED
-    # ---------------------------------------------------------------
     
     def predict_probas(self, X_test):
         return self.sigmoid(np.multiply(X_test, weights).sum(axis = 1) + bias)
 
-    # ------------------------------
     
     def predict(self, X_test):
         np.where(self.predict_probas(X_test) > 0.5, 1, 0)
         
-    # ----------------------------------------------------------------
 
 
 
