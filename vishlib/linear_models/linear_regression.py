@@ -24,7 +24,6 @@ class LinearRegression(Estimator):
         self.bias = None
         self.learning_rate = learning_rate
         
-    # -----------------------------------------------------------------
     
     def fit(self, X_train: np.ndarray, y_train: np.ndarray):
         
@@ -33,7 +32,6 @@ class LinearRegression(Estimator):
         if self.method == 'analytical':
             self.fit_analytical(X_train, y_train)
             
-    # ------------------------------------
     
     def fit_analytical(self, X_train: np.ndarray, y_train: np.ndarray):
     
@@ -62,7 +60,6 @@ class LinearRegression(Estimator):
             self.weights = weights
             self.bias = 0
 
-    # ------------------------------------
     
     def fit_gd(self, X_train: np.ndarray, y_train: np.ndarray):
         
@@ -112,12 +109,9 @@ class LinearRegression(Estimator):
         self.weights = weights
         self.bias = bias
 
-    # ---------------------------------------------------------------------------
-        
+
     def predict(self, X_test: np.ndarray, y_test: np.ndarray):
         return np.multiply(X_test, self.weights).sum(axis = 1) + self.bias
-    
-    # ---------------------------------------------------------------------------
     
     
                 
